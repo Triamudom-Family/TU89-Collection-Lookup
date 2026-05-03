@@ -1,0 +1,475 @@
+<!doctype html>
+<html>
+
+<head>
+	<base target="_top" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+
+		body {
+			font-family: "IBM Plex Sans Thai", sans-serif;
+			overscroll-behavior: none;
+		}
+
+		.mono {
+			font-family: "JetBrains Mono", monospace;
+			font-weight: 600;
+		}
+
+		.blob {
+			position: fixed;
+			border-radius: 50%;
+			filter: blur(80px);
+			opacity: 0.35;
+			pointer-events: none;
+			z-index: 0;
+		}
+
+		.glass-card {
+			background: rgba(255, 255, 255, 0.72);
+			backdrop-filter: blur(20px);
+			-webkit-backdrop-filter: blur(20px);
+			border: 1.5px solid rgba(255, 255, 255, 0.9);
+			box-shadow:
+				0 4px 32px rgba(236, 72, 153, 0.1),
+				0 1.5px 8px rgba(236, 72, 153, 0.06),
+				inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		}
+
+		.pink-input:focus {
+			outline: none;
+			box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.18);
+		}
+
+		/* .pink-input:focus {
+			outline: none;
+			border-radius: 1rem;
+		} */
+
+		/* input[type="tel"]:focus {
+			outline: none !important;
+			box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.18) !important;
+		} */
+
+		/* .pink-input:focus-visible {
+			outline: none;
+		} */
+
+		.field-label {
+			font-size: 0.7rem;
+			font-weight: 500;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: #f472b6;
+		}
+
+		.glass-card {
+			transition: height 0.3s ease;
+		}
+
+		@keyframes fadeUp {
+			from {
+				opacity: 0;
+				transform: translateY(18px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.fade-up {
+			animation: fadeUp 0.55s cubic-bezier(0.22, 0.68, 0, 1.2) both;
+		}
+
+		.fade-up-1 {
+			animation-delay: 0.05s;
+		}
+
+		.fade-up-2 {
+			animation-delay: 0.13s;
+		}
+
+		.fade-up-3 {
+			animation-delay: 0.22s;
+		}
+
+		.fade-up-4 {
+			animation-delay: 0.3s;
+		}
+
+		@keyframes pulse-soft {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0.5;
+			}
+		}
+
+		.pulse-soft {
+			animation: pulse-soft 1.5s ease-in-out infinite;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(8px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.fade-in {
+			animation: fadeIn 0.3s ease both;
+		}
+
+
+		#resultCard:not(.hidden) {
+			display: flex;
+		}
+	</style>
+</head>
+
+<body class="bg-gradient-to-br from-rose-50 via-pink-100 to-pink-200 overflow-x-hidden" style="min-height: 100dvh">
+	<!-- bg-gradient-to-tl from-fuchsia-50 to-pink-200 -->
+	<div class="blob" style="width:420px;height:420px;background:#f9a8d4;top:-80px;left:-100px;"></div>
+	<div class="blob" style="width:320px;height:320px;background:#fbcfe8;bottom:-60px;right:-60px;"></div>
+	<div class="blob" style="width:200px;height:200px;background:#fde68a;bottom:80px;left:30px;opacity:0.18;"></div>
+
+	<section class="relative z-10 flex flex-col items-center justify-center w-full min-h-dvh px-6 sm:px-5 py-10">
+		<!-- gap-16 max-w-2xl mx-auto h-screen-->
+		<div
+			class="glass-card rounded-3xl w-full max-w-md mx-auto px-7 sm:px-8 pt-8 pb-6 flex flex-col gap-7 fade-up fade-up-1">
+			<!-- bg-gradient-to-bl from-pink-400 to-pink-300 px-10 py-9 text-white -->
+			<header class="flex flex-col items-center gap-1 fade-up fade-up-2">
+				<!-- <div
+					class="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center shadow-lg shadow-pink-300/40 mb-3">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+						stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="11" cy="11" r="8" />
+						<path d="m21 21-4.35-4.35" />
+					</svg>
+				</div> -->
+				<h1 class="text-3xl font-bold tracking-tight text-pink-700 flex items-center gap-3">
+					ค้นหาเลขที่สมาชิก
+					<!-- <span
+						class="bg-gradient-to-br from-pink-400 to-rose-400 text-white text-sm font-bold rounded-2xl shadow-lg shadow-pink-300/40 w-12 h-12 flex items-center justify-center shadow-lgmb-1">TU89</span> -->
+					<span
+						class="bg-pink-100 text-pink-700 text-sm font-bold rounded-full px-3 py-1 border border-pink-200">
+						TU89
+					</span>
+				</h1>
+				<p class="text-xs text-pink-400 font-light tracking-wide">
+					กรอกข้อมูลเพื่อค้นหาเลขที่สมาชิก</p>
+			</header>
+
+			<div class="flex flex-col gap-5 fade-up fade-up-3 transition-all duration-300">
+				<!-- sm:flex-row gap-3 relative w-full overflow-hidden -->
+				<div class="flex flex-col gap-1.5">
+					<label class="text-pink-400 font-medium text-xs tracking-widest block pl-1">เลขที่นั่งสอบ</label>
+					<!-- text-pink-500 -->
+					<div class="relative">
+						<div class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 pointer-events-none">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+								fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+								stroke-linejoin="round">
+								<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+								<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+							</svg>
+						</div>
+						<input id="examID" type="tel" placeholder="19999" maxlength="5"
+							class="mono w-full text-pink-700 caret-pink-400 rounded-2xl text-center transition-all border-pink-200 placeholder-pink-200 border-2 text-xl tracking-[0.2em] bg-white/80 pl-10 pr-4 py-3.5 focus:border-pink-400 pink-input"
+							oninput="handleExamInput(this)" onkeydown="if(event.key==='Enter')trySearch()" autofocus />
+						<!-- border-pink-300 bg-white border-4 -->
+					</div>
+				</div>
+
+				<div class="flex flex-col gap-1.5">
+					<label class="text-pink-400 font-medium text-xs tracking-widest block pl-1">เบอร์โทรศัพท์</label>
+					<!-- text-pink-500 -->
+					<div class="relative">
+						<div class="absolute left-4 top-1/2 -translate-y-1/2 text-pink-300 pointer-events-none">
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+								fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+								stroke-linejoin="round">
+								<path
+									d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.78a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+							</svg>
+						</div>
+						<input id="phoneNO" type="tel" placeholder="0803323330" maxlength="10"
+							class="mono w-full text-pink-700 caret-pink-400 rounded-2xl text-center transition-all border-pink-200 placeholder-pink-200 border-2 text-xl tracking-[0.2em] bg-white/80 pl-10 pr-4 py-3.5 focus:border-pink-400 pink-input"
+							oninput="handlePhoneInput(this)" onkeydown="if(event.key==='Enter')trySearch()" />
+						<!-- style="color: inherit" -->
+					</div>
+				</div>
+
+				<div id="resultCard"
+					class="hidden flex-col items-center gap-1 py-4 px-6 rounded-2xl bg-pink-50 border border-pink-200">
+					<p class="text-xs text-pink-400 font-medium tracking-widest uppercase">เลขที่สมาชิก</p>
+					<p id="resMembershipId" class="mono text-4xl text-pink-500 tracking-widest"></p>
+					<button onclick="copyId()" id="copyBtn"
+						class="mt-2 text-xs text-pink-400 hover:text-pink-600 transition-colors flex items-center gap-1">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+							<rect width="14" height="14" x="8" y="8" rx="2" />
+							<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+						</svg>
+						<span id="copyLabel">คัดลอก</span>
+					</button>
+				</div>
+
+				<!-- <div id="errorMsg" class="text-center text-xl font-medium text-red-400 py-2" style="display:none"></div> -->
+				<div id="errorBox"
+					class="hidden flex items-center gap-3 px-5 py-4 rounded-2xl bg-amber-100 border-2 border-amber-400">
+					<div id="errorIcon"
+						class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"
+							stroke-linecap="round" stroke-linejoin="round">
+							<path
+								d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+							<line x1="12" y1="9" x2="12" y2="13" />
+							<line x1="12" y1="17" x2="12.01" y2="17" />
+						</svg>
+					</div>
+					<p id="errorText" class="text-base font-semibold text-amber-500 leading-snug"></p>
+				</div>
+
+				<div id="spinner" class="hidden flex justify-center py-2">
+					<div role="status">
+						<svg aria-hidden="true" class="w-8 h-8 text-pink-200 animate-spin fill-pink-400"
+							viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+								fill="currentColor" />
+							<path
+								d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+								fill="currentFill" />
+						</svg>
+						<span class="sr-only">Loading...</span>
+					</div>
+				</div>
+			</div>
+
+			<button id="searchBtn"
+				class="fade-up fade-up-4 w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-400 to-rose-400 text-white font-semibold text-base tracking-wide shadow-lg shadow-pink-300/40 hover:from-pink-500 hover:to-rose-500 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:bg-none disabled:bg-pink-100 disabled:text-pink-300 disabled:border disabled:border-pink-200 disabled:shadow-none disabled:cursor-not-allowed disabled:hover:bg-pink-100 disabled:active:scale-100"
+				onclick="trySearch()" disabled>
+				<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
+					stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8" />
+					<path d="m21 21-4.35-4.35" />
+				</svg>
+				ค้นหาเลขที่สมาชิก
+			</button>
+		</div>
+
+		<footer
+			class="mt-5 text-center text-xs text-pink-400 fade-up fade-up-4 flex flex-wrap items-center justify-center gap-2">
+			<!-- mb-12 px-8 py-3 gap-x-3 gap-y-1 -->
+			<a href="https://github.com/arckanop/AppScript-Membership-Lookup" target="_blank" rel="noopener noreferrer"
+				class="inline-flex items-center gap-1 font-medium hover:text-pink-600 transition-colors">
+
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+					<path
+						d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+				</svg>
+				Github
+			</a>
+			<span>·</span>
+			<a href="https://github.com/arckanop/AppScript-Membership-Lookup/blob/master/LICENSE.md" target="_blank"
+				rel="noopener noreferrer" class="transition-colors font-medium hover:text-pink-600">
+				AGPL-3.0
+			</a>
+			<span>|</span>
+			<span>ID Lookup - δ · v2.2.2</span>
+		</footer>
+	</section>
+
+	<script>
+		let searchId = 0;
+		function handleExamInput(input) {
+			input.value = input.value.replace(/\D/g, '').slice(0, 5);
+			resetResult();
+			// const num = parseInt(input.value, 10);
+			if (input.value.length === 5 && isExamValid(input.value) === false) {
+				// const err = document.getElementById("errorMsg");
+				// err.textContent = "เลขที่นั่งสอบไม่ถูกต้อง";
+				// err.style.display = "block";
+				showNotFound("เลขที่นั่งสอบไม่ถูกต้อง");
+			} else {
+				// document.getElementById("errorMsg").style.display = "none";
+				// document.getElementById("errorMsg").textContent = "";
+				input.classList.remove('error-state');
+			}
+			updateBtn();
+		}
+
+		function resetResult() {
+			searchId++;
+			// document.getElementById("searchBtn").classList.remove('visible');
+			// document.getElementById("resultCard")?.classList.add("hidden");
+			// document.getElementById("errorMsg").style.display = "none";
+			// document.getElementById("errorMsg").textContent = "";
+			// document.getElementById("spinner")?.classList.add("hidden");
+			// document.getElementById("resultCard").classList.remove('visible');
+			// document.getElementById('errorBox').classList.remove('visible');
+			// document.getElementById('spinner').classList.remove('visible');
+			document.getElementById("resultCard").classList.add('hidden');
+			document.getElementById('errorBox').classList.add('hidden');
+			document.getElementById('spinner').classList.add('hidden');
+			document.getElementById('searchBtn').style.display = '';
+
+			document.getElementById('examID').classList.remove('text-amber-500', 'text-red-500', 'text-green-500');
+			document.getElementById('phoneNO').classList.remove('text-amber-500', 'text-red-500', 'text-green-500');
+			document.getElementById('examID').classList.add('text-pink-700');
+			document.getElementById('phoneNO').classList.add('text-pink-700');
+
+			document.getElementById('errorBox').classList.remove('border-red-400', 'bg-red-100');
+			document.getElementById('errorBox').classList.add('border-amber-400', 'bg-amber-100');
+			document.getElementById('errorText').classList.remove('text-red-600');
+			document.getElementById('errorText').classList.add('text-amber-500');
+			document.getElementById('errorBox').querySelector('svg').setAttribute('stroke', '#f59e0b');
+
+			document.getElementById('errorIcon').classList.remove('bg-red-100');
+			document.getElementById('errorIcon').classList.add('bg-amber-100');
+		}
+
+		function trySearch() {
+			const examId = document.getElementById("examID").value.trim();
+			const phone = document.getElementById("phoneNO").value.trim();
+
+			if (examId.length !== 5 || phone.length !== 10 || isExamValid(examId) !== true) return;
+
+			resetResult();
+			const sid = searchId;
+
+			document.getElementById("spinner")?.classList.remove("hidden");
+			document.getElementById('searchBtn').disabled = true;
+
+			google.script.run
+				.withSuccessHandler((res) => {
+					if (sid !== searchId) return;
+					document.getElementById("spinner")?.classList.add("hidden");
+
+					updateBtn();
+					if (res.found) {
+						document.getElementById("resMembershipId").textContent = res.membershipId;
+						// document.getElementById("resultCard").classList.remove("hidden");
+						// document.getElementById("searchBtn").classList.add("hidden");
+						// document.getElementById("resultCard").classList.add("visible");
+						document.getElementById("resultCard").classList.remove("hidden");
+						document.getElementById("resultCard").classList.add("fade-in");
+						document.getElementById("searchBtn").style.display = 'none';
+
+						// document.getElementById('examID').classList.add('bg-green-50');
+						// document.getElementById('phoneNO').classList.add('bg-green-50');
+
+						document.getElementById('examID').classList.remove('text-pink-700');
+						document.getElementById('phoneNO').classList.remove('text-pink-700');
+						document.getElementById('examID').classList.add('text-green-500');
+						document.getElementById('phoneNO').classList.add('text-green-500');
+					} else {
+						// const err = document.getElementById("errorMsg");
+						// err.textContent = "ไม่พบข้อมูล";
+						// err.style.display = "block";
+						updateBtn();
+						showNotFound("ไม่พบข้อมูล กรุณาตรวจสอบข้อมูลอีกครั้ง");
+					}
+				})
+				.withFailureHandler(() => {
+					if (sid !== searchId) return;
+					document.getElementById("spinner")?.classList.add("hidden");
+					// const err = document.getElementById("errorMsg");
+					// err.textContent = "เกิดข้อผิดพลาด";
+					// err.style.display = "block";
+
+					showError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+				})
+				.findID(examId, phone);
+		}
+
+		function isExamValid(val) {
+			const n = parseInt(val, 10);
+			return n >= 10000 && n <= 45000;
+		}
+
+		function updateBtn() {
+			const exam = document.getElementById('examID').value;
+			const phone = document.getElementById('phoneNO').value;
+			const ready = exam.length === 5 && isExamValid(exam) === true && phone.length === 10;
+			document.getElementById('searchBtn').disabled = !ready;
+		}
+
+		function handlePhoneInput(input) {
+			input.value = input.value.replace(/\D/g, '');
+			resetResult();
+			updateBtn();
+		}
+
+		function showError(msg) {
+			// // document.getElementById('errorBox').classList.add('visible');
+			// document.getElementById('errorBox').classList.remove('hidden');
+			// document.getElementById('errorText').textContent = msg;
+			// document.getElementById('searchBtn').disabled = true;
+
+			document.getElementById('errorText').textContent = msg;
+			// document.getElementById('examID').classList.add('bg-red-50');
+			// document.getElementById('phoneNO').classList.add('bg-red-50');
+			document.getElementById('errorBox').classList.remove('hidden');
+
+			document.getElementById('examID').classList.remove('text-pink-700');
+			document.getElementById('examID').classList.add('text-red-500');
+			document.getElementById('phoneNO').classList.remove('text-pink-700');
+			document.getElementById('phoneNO').classList.add('text-red-500');
+
+			document.getElementById('errorBox').classList.remove('border-amber-400', 'bg-amber-100');
+			document.getElementById('errorBox').classList.add('border-red-400', 'bg-red-100');
+			document.getElementById('errorText').classList.remove('text-amber-500');
+			document.getElementById('errorText').classList.add('text-red-600');
+
+			document.getElementById('errorIcon').classList.remove('bg-amber-100');
+			document.getElementById('errorIcon').classList.add('bg-red-100');
+
+			document.getElementById('errorBox').querySelector('svg').setAttribute('stroke', '#ef4444');
+			document.getElementById('searchBtn').disabled = true;
+		}
+
+		function showNotFound(msg) {
+			document.getElementById('errorBox').classList.remove('hidden');
+			document.getElementById('errorText').textContent = msg;
+			document.getElementById('searchBtn').disabled = true;
+			// document.getElementById('examID').classList.add('bg-amber-50');
+			// document.getElementById('phoneNO').classList.add('bg-amber-50');
+
+			document.getElementById('examID').classList.remove('text-pink-700');
+			document.getElementById('phoneNO').classList.remove('text-pink-700');
+			document.getElementById('examID').classList.add('text-amber-500');
+			document.getElementById('phoneNO').classList.add('text-amber-500');
+		}
+
+		function copyId() {
+			const id = document.getElementById('resMembershipId').textContent;
+			navigator.clipboard.writeText(id).then(() => {
+				document.getElementById('copyLabel').textContent = 'คัดลอกแล้ว!';
+				setTimeout(() => {
+					document.getElementById('copyLabel').textContent = 'คัดลอก';
+				}, 2000);
+			});
+		}
+
+		window.addEventListener('load', () => {
+			document.getElementById('examID').focus();
+		});
+	</script>
+</body>
+
+</html>
