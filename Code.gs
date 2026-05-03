@@ -102,8 +102,15 @@ function getDataByMembership() {
 
 		const isTrue = (v) => v === true || String(v).toUpperCase() === 'TRUE';
 
+		const parentFirst  = String(allValues[i][3]  ?? "").trim();
+		const parentLast   = String(allValues[i][4]  ?? "").trim();
+		const studentFirst = String(allValues[i][13] ?? "").trim();
+		const studentLast  = String(allValues[i][14] ?? "").trim();
+
 		map[membershipId] = {
 			row:            i + 1,
+			parentName:     [parentFirst, parentLast].filter(Boolean).join(" ") || "-",
+			studentName:    [studentFirst, studentLast].filter(Boolean).join(" ") || "-",
 			jerseySize:     String(record["ไซส์เสื้อ Jersey"]        ?? "").trim() || "-",
 			jerseyText:     String(record["ตัวอักษรบนเสื้อ Jersey"]  ?? "").trim() || "-",
 			jerseyNumber:   String(record["ตัวเลขบนเสื้อ Jersey"]    ?? "").trim() || "-",
