@@ -109,6 +109,7 @@ function getDataByMembership() {
 
 		map[membershipId] = {
 			row:            i + 1,
+			isDenied:       String(allValues[i][32] ?? "").trim() === "Denied",
 			parentName:     [parentFirst, parentLast].filter(Boolean).join(" ") || "-",
 			studentName:    [studentFirst, studentLast].filter(Boolean).join(" ") || "-",
 			jerseySize:     String(record["ไซส์เสื้อ Jersey"]        ?? "").trim() || "-",

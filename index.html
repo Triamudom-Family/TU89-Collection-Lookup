@@ -71,9 +71,12 @@
 			box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.18);
 		}
 
-		.input-wrap.state-success { border-color: #86efac; }
-		.input-wrap.state-warn    { border-color: #fcd34d; }
-		.input-wrap.state-error   { border-color: #fca5a5; }
+		.input-wrap.state-success,
+		.input-wrap.state-success:focus-within { border-color: #86efac; box-shadow: 0 0 0 4px rgba(134, 239, 172, 0.28); }
+		.input-wrap.state-warn,
+		.input-wrap.state-warn:focus-within    { border-color: #fcd34d; box-shadow: 0 0 0 4px rgba(252, 211,  77, 0.28); }
+		.input-wrap.state-error,
+		.input-wrap.state-error:focus-within   { border-color: #fca5a5; box-shadow: 0 0 0 4px rgba(252, 165, 165, 0.28); }
 
 		@keyframes fadeUp {
 			from { opacity: 0; transform: translateY(18px); }
@@ -165,7 +168,7 @@
 				</button>
 			</div>
 
-			<p class="text-center text-xs text-pink-200 tracking-wide">สำหรับใช้ภายใน Triamudom Family เท่านั้น</p>
+<p class="text-center text-xs text-pink-200 tracking-wide">สำหรับใช้ภายใน Triamudom Family เท่านั้น</p>
 
 		</div>
 
@@ -206,9 +209,9 @@
 				<div class="flex flex-col gap-1.5">
 					<label class="text-pink-400 font-medium text-xs tracking-widest block pl-1">เลขที่สมาชิก</label>
 					<div class="input-wrap justify-center" id="membershipInputWrap">
-						<span class="mono text-pink-300 text-xl pr-0.5 flex items-center select-none tracking-widest">89-</span>
+						<span id="membershipPrefix" class="mono text-pink-500 text-xl pr-0.5 flex items-center select-none tracking-widest">89-</span>
 						<input id="membershipInput" type="tel" placeholder="0000" maxlength="4"
-							class="mono w-24 text-pink-700 caret-pink-400 bg-transparent text-xl tracking-[0.4em] py-3.5 focus:outline-none placeholder-pink-200"
+							class="mono w-24 text-pink-500 caret-pink-400 bg-transparent text-xl tracking-[0.4em] py-3.5 focus:outline-none placeholder-pink-200"
 							oninput="handleMembershipInput(this)" autofocus />
 					</div>
 				</div>
@@ -281,6 +284,21 @@
 			},
 		};
 
+		function setInputColor(color) {
+			const STATE_COLORS = ['text-green-500', 'text-amber-500', 'text-red-500'];
+			const prefix = document.getElementById('membershipPrefix');
+			const input  = document.getElementById('membershipInput');
+			prefix.classList.remove(...STATE_COLORS);
+			input.classList.remove(...STATE_COLORS);
+			if (color) {
+				prefix.classList.add(color);
+				input.classList.add(color);
+			} else {
+				prefix.classList.add('text-pink-500');
+				input.classList.add('text-pink-500');
+			}
+		}
+
 		function selectType(type) {
 			currentType = type;
 			const cfg = TYPES[type];
@@ -330,6 +348,26 @@
 		}
 
 		function showResult(res) {
+			if (res.isDenied) {
+				const card = document.getElementById('resultCard');
+				card.innerHTML = `
+					<div class="flex flex-col items-center gap-3 py-3 text-center">
+						<div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+							<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+							</svg>
+						</div>
+						<p class="text-base font-bold text-red-500">บัญชีนี้ถูกระงับการใช้งาน</p>
+						<p class="text-sm text-red-400">กรุณาแจ้งผู้ดูแลระบบ</p>
+					</div>
+				`;
+				card.classList.remove('hidden');
+				card.classList.add('fade-in');
+				document.getElementById('membershipInputWrap').classList.add('state-error');
+				setInputColor('text-red-500');
+				return;
+			}
+
 			let dataHtml = '';
 			let isCollected = false;
 
@@ -363,6 +401,7 @@
 			card.classList.add('fade-in');
 
 			document.getElementById('membershipInputWrap').classList.add('state-success');
+			setInputColor('text-green-500');
 		}
 
 		function infoCard(label, value) {
@@ -433,9 +472,7 @@
 			document.getElementById('errorBox').classList.add('hidden');
 			document.getElementById('spinner').classList.add('hidden');
 
-			const input = document.getElementById('membershipInput');
-			input.classList.remove('text-green-500', 'text-amber-500', 'text-red-500');
-			input.classList.add('text-pink-700');
+			setInputColor(null);
 
 			const wrap = document.getElementById('membershipInputWrap');
 			wrap.classList.remove('state-success', 'state-warn', 'state-error');
@@ -454,6 +491,7 @@
 			document.getElementById('errorText').textContent = msg;
 			document.getElementById('errorBox').classList.remove('hidden');
 			document.getElementById('membershipInputWrap').classList.add('state-warn');
+			setInputColor('text-amber-500');
 		}
 
 		function showError(msg) {
@@ -468,6 +506,7 @@
 			box.querySelector('svg').setAttribute('stroke', '#ef4444');
 			box.classList.remove('hidden');
 			document.getElementById('membershipInputWrap').classList.add('state-error');
+			setInputColor('text-red-500');
 		}
 	</script>
 </body>
