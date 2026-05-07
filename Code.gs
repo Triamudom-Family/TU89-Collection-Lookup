@@ -1,79 +1,99 @@
 function myFunction() {
-  // if (MailApp.getRemainingDailyQuota() == 0.0) return;
-  // else Logger.log(MailApp.getRemainingDailyQuota());
-  
-  Logger.log(MailApp.getRemainingDailyQuota());
-  retryEmailByRow(546);
-
-  // retryEmailByRow(865);
-  // <-- Stop -->
-
-  // for (let i = 826; i <= 832; i++) {
-	//  	retryEmailByRow(i);
-	// }
-
-  // let rows = [834, 835, 836, 837, 838, 841, 845, 849, 850, 851, 858, 859, 860, 862, 877, 878, 880, 881, 888, 891, 892, 893, 895, 897 , 898];
-
-	// for (let row of rows) {
-	//  	retryEmailByRow(row);
-	// }
 }
 
 function doGet() {
-	getData();
-	getDataByMembership();
+	buildAndCacheMaps_();
 	return HtmlService
-        .createHtmlOutputFromFile('index.html')
-        .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+		.createHtmlOutputFromFile('index.html')
+		.addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+function getSheet_() {
+	return SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses");
+}
+
+function isTrue_(v) {
+	return v === true || String(v).toUpperCase() === "TRUE";
+}
+
+function isDenied_(v) {
+	const s = String(v ?? "").trim().toLowerCase();
+	return s === "denied";
+}
+
+function str_(v) {
+	return String(v ?? "").trim() || "-";
+}
+
+function joinName_(first, last) {
+	return [String(first ?? "").trim(), String(last ?? "").trim()].filter(Boolean).join(" ") || "-";
+}
+
+// Reads the sheet once and populates both caches atomically.
+function buildAndCacheMaps_() {
+	const values  = getSheet_().getDataRange().getValues();
+	const headers = values[0];
+
+	const hIdx = Object.create(null);
+	headers.forEach((h, i) => { hIdx[String(h)] = i; });
+
+	const jerseySize_idx   = hIdx["ไซส์เสื้อ Jersey"];
+	const jerseyText_idx   = hIdx["ตัวอักษรบนเสื้อ Jersey"];
+	const jerseyNumber_idx = hIdx["ตัวเลขบนเสื้อ Jersey"];
+	const poloSize_idx     = hIdx["ไซส์เสื้อโปโล"];
+	const poloGender_idx   = hIdx["เพศเสื้อโปโล"];
+
+	const examMap       = Object.create(null);
+	const membershipMap = Object.create(null);
+
+	for (let i = 1; i < values.length; i++) {
+		const row          = values[i];
+		const membershipId = String(row[2] ?? "").trim();
+		const examId       = String(row[9] ?? "").trim();
+
+		if (examId) {
+			examMap[examId] = {
+				id:    membershipId,
+				phone: String(row[7] ?? "").trim(),
+			};
+		}
+
+		if (membershipId) {
+			membershipMap[membershipId] = {
+				row:             i + 1,
+				parentName:      joinName_(row[3],  row[4]),
+				studentName:     joinName_(row[13], row[14]),
+				jerseySize:      str_(row[jerseySize_idx]),
+				jerseyText:      str_(row[jerseyText_idx]),
+				jerseyNumber:    str_(row[jerseyNumber_idx]),
+				poloSize:        str_(row[poloSize_idx]),
+				poloGender:      str_(row[poloGender_idx]),
+				denyStatus: str_(row[32]),
+				isDenied: isDenied_(row[32]),
+				bagCollected:    isTrue_(row[33]),
+				poloCollected:   isTrue_(row[34]),
+				jerseyCollected: isTrue_(row[35]),
+			};
+		}
+	}
+
+	const cache = CacheService.getScriptCache();
+	try { cache.put("examMap",       JSON.stringify(examMap),       60); } catch (e) { Logger.log(e.message); }
+	try { cache.put("membershipMap", JSON.stringify(membershipMap), 60); } catch (e) { Logger.log(e.message); }
+
+	return { examMap, membershipMap };
 }
 
 function getData() {
-	const cache = CacheService.getScriptCache();
-	const cached = cache.get("examMap");
+	const cached = CacheService.getScriptCache().get("examMap");
 	if (cached) return JSON.parse(cached);
-
-	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses");
-	const values = sheet.getDataRange().getValues();
-
-	const examMap = Object.create(null);
-
-	for (let i = 1; i < values.length; i++) {
-		const examId = String(values[i][9]).trim();
-		if (!examId) continue;
-
-		examMap[examId] = {
-			id: String(values[i][2] ?? "").trim(),
-			phone: String(values[i][7] ?? "").trim(),
-		};
-	}
-
-	try {
-		cache.put("examMap", JSON.stringify(examMap), 60);
-	} catch (e) {
-		Logger.log("Cache put failed: " + e.message);
-	}
-
-	return examMap;
+	return buildAndCacheMaps_().examMap;
 }
 
-function findID(examId, phone) {
-	try {
-		const examMap = getData();
-		const key = String(examId).trim();
-
-		if (!Object.prototype.hasOwnProperty.call(examMap, key)) {
-			return { found: false };
-		}
-
-		const entry = examMap[key];
-		if (String(entry.phone).trim() !== String(phone).trim()) {
-			return { found: false };
-		}
-
-		return { found: true, membershipId: entry.id };
-	} catch (error) {
-		return { found: false, error: error.message };
-	}
+function getDataByMembership() {
+	const cached = CacheService.getScriptCache().get("membershipMap");
+	if (cached) return JSON.parse(cached);
+	return buildAndCacheMaps_().membershipMap;
 }
 
 function invalidateExamCache() {
@@ -82,54 +102,15 @@ function invalidateExamCache() {
 	cache.remove("membershipMap");
 }
 
-function getDataByMembership() {
-	const cache = CacheService.getScriptCache();
-	const cached = cache.get("membershipMap");
-	if (cached) return JSON.parse(cached);
-
-	const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses");
-	const allValues = sheet.getDataRange().getValues();
-	const headers = allValues[0];
-
-	const map = Object.create(null);
-
-	for (let i = 1; i < allValues.length; i++) {
-		const membershipId = String(allValues[i][2] ?? "").trim();
-		if (!membershipId) continue;
-
-		const record = {};
-		headers.forEach((h, j) => { record[String(h)] = allValues[i][j]; });
-
-		const isTrue = (v) => v === true || String(v).toUpperCase() === 'TRUE';
-
-		const parentFirst  = String(allValues[i][3]  ?? "").trim();
-		const parentLast   = String(allValues[i][4]  ?? "").trim();
-		const studentFirst = String(allValues[i][13] ?? "").trim();
-		const studentLast  = String(allValues[i][14] ?? "").trim();
-
-		map[membershipId] = {
-			row:            i + 1,
-			isDenied:       String(allValues[i][32] ?? "").trim() === "Denied",
-			parentName:     [parentFirst, parentLast].filter(Boolean).join(" ") || "-",
-			studentName:    [studentFirst, studentLast].filter(Boolean).join(" ") || "-",
-			jerseySize:     String(record["ไซส์เสื้อ Jersey"]        ?? "").trim() || "-",
-			jerseyText:     String(record["ตัวอักษรบนเสื้อ Jersey"]  ?? "").trim() || "-",
-			jerseyNumber:   String(record["ตัวเลขบนเสื้อ Jersey"]    ?? "").trim() || "-",
-			poloSize:       String(record["ไซส์เสื้อโปโล"]           ?? "").trim() || "-",
-			poloGender:     String(record["เพศเสื้อโปโล"]            ?? "").trim() || "-",
-			bagCollected:   isTrue(allValues[i][33]),
-			poloCollected:  isTrue(allValues[i][34]),
-			jerseyCollected:isTrue(allValues[i][35]),
-		};
-	}
-
+function findID(examId, phone) {
 	try {
-		cache.put("membershipMap", JSON.stringify(map), 60);
-	} catch (e) {
-		Logger.log("Cache put failed (membershipMap): " + e.message);
+		const entry = getData()[String(examId).trim()];
+		if (!entry) return { found: false };
+		if (String(entry.phone).trim() !== String(phone).trim()) return { found: false };
+		return { found: true, membershipId: entry.id };
+	} catch (error) {
+		return { found: false, error: error.message };
 	}
-
-	return map;
 }
 
 function findByMembershipId(rawInput) {
@@ -139,10 +120,7 @@ function findByMembershipId(rawInput) {
 
 		const map = getDataByMembership();
 		const key = "89-" + num;
-
-		if (!Object.prototype.hasOwnProperty.call(map, key)) {
-			return { found: false };
-		}
+		if (!map[key]) return { found: false };
 
 		return { found: true, membershipId: key, ...map[key] };
 	} catch (err) {
@@ -151,27 +129,21 @@ function findByMembershipId(rawInput) {
 }
 
 function toggleCollectedStatus(membershipId, type) {
-	// AH=34 (bag), AI=35 (polo), AJ=36 (jersey) — 1-indexed
 	const COL = { bag: 34, polo: 35, jersey: 36 };
 	const col = COL[type];
 	if (!col) return { success: false, error: "Invalid type" };
 
 	try {
-		const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses");
-		const allValues = sheet.getDataRange().getValues();
-		const key = String(membershipId).trim();
+		const key   = String(membershipId).trim();
+		const entry = getDataByMembership()[key];
+		if (!entry) return { success: false, error: "Member not found" };
 
-		for (let i = 1; i < allValues.length; i++) {
-			if (String(allValues[i][2] ?? "").trim() !== key) continue;
-
-			const current = allValues[i][col - 1];
-			const newStatus = !(current === true || String(current).toUpperCase() === 'TRUE');
-			sheet.getRange(i + 1, col).setValue(newStatus);
-			CacheService.getScriptCache().remove("membershipMap");
-			return { success: true, newStatus };
-		}
-
-		return { success: false, error: "Member not found" };
+		const sheet     = getSheet_();
+		const current   = sheet.getRange(entry.row, col).getValue();
+		const newStatus = !isTrue_(current);
+		sheet.getRange(entry.row, col).setValue(newStatus);
+		CacheService.getScriptCache().remove("membershipMap");
+		return { success: true, newStatus };
 	} catch (err) {
 		return { success: false, error: err.message };
 	}
